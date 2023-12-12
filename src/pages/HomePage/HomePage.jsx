@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import './HomePage.css';
+import Select from 'react-select'; // Asegúrate de importar el componente Select
+import { useForm, Controller } from 'react-hook-form';
 import { getSchedules } from '../../services/api/getSchedules';
 import { CardSchedule, ModalCreateSchedules } from '../../components';
 import { useDispatch, useSelector } from 'react-redux';
@@ -11,18 +12,26 @@ const HomePage = () => {
 	const schedules = useSelector((state) => state.schedules);
 
 	const [openModal, setOpenModal] = useState(false);
+	const [selectedDay, setSelectedDay] = useState(new Date().getDay());
+
+	const { control, setValue } = useForm({
+		defaultValues: {
+			Day: '',
+			remember: false,
+		},
+	});
 
 	useEffect(() => {
 		const init = async () => {
 			try {
-				const GetSchedules = await getSchedules();
+				const GetSchedules = await getSchedules(selectedDay);
 				dispatch(addSchedules(GetSchedules));
 			} catch (error) {
 				console.error('Error fetching schedules:', error);
 			}
 		};
 		init();
-	}, [dispatch]);
+	}, [dispatch, selectedDay]);
 
 	const calculateAvailableSlots = (daySchedule) => {
 		const startTime = new Date('1970-01-01T09:00:00');
@@ -57,7 +66,6 @@ const HomePage = () => {
 		return availableSlots;
 	};
 
-	const currentDay = new Date().getDay();
 	const weekdays = [
 		'domingo',
 		'lunes',
@@ -67,11 +75,11 @@ const HomePage = () => {
 		'viernes',
 		'sábado',
 	];
-	const targetDay = weekdays[currentDay];
+	const targetDay = weekdays[selectedDay];
 
 	const daySchedule = schedules?.filter((entry) => {
 		const entryHour = parseInt(entry.Hour.split(':')[0], 10);
-		const entryDuration = entry.Duration || 0; // Asegúrate de manejar el caso en que Duration no esté definido
+		const entryDuration = entry.Duration || 0;
 		return (
 			entry.Day === targetDay &&
 			entryHour >= 9 &&
@@ -87,12 +95,35 @@ const HomePage = () => {
 	const schedulesToday = useSelector((state) => state.schedulesToday);
 	const totalAvailableSlots = calculateAvailableSlots(daySchedule);
 
+	const options = weekdays.map((day, index) => ({
+		label: day,
+		value: index,
+	}));
+
 	return (
 		<>
 			<div className="flex justify-center mt-5">
 				<h1 className="text-cyan-700 font-bold text-2xl">Citas disponibles</h1>
 			</div>
-
+			<div className="flex justify-center mt-5">
+				<Controller
+					name="Day"
+					rules={{ required: true }}
+					control={control}
+					render={({ field }) => (
+						<Select
+							{...field}
+							className="w-60"
+							options={options}
+							value={options.find((option) => option.value === selectedDay)}
+							onChange={(selectedOption) => {
+								setSelectedDay(selectedOption.value);
+								setValue('Day', selectedOption);
+							}}
+						/>
+					)}
+				/>
+			</div>
 			<div className="mt-10 flex justify-center gap-8 flex-wrap">
 				{schedulesToday?.map((schedule, index) => (
 					<CardSchedule
