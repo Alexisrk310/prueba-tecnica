@@ -79,14 +79,15 @@ const HomePage = ({}) => {
 	useEffect(() => {
 		dispatch(addSchedulesToday(daySchedule));
 	}, [dispatch, schedules, targetDay]);
+	console.log(daySchedule, 'dias filtrados');
 	const schedulesToday = useSelector((state) => state.schedulesToday);
 	// Calcular el total de espacios disponibles
 	const totalAvailableSlots = calculateAvailableSlots(daySchedule);
-	console.log(schedulesToday);
+	console.log(schedulesToday, 'redux filter');
 	console.log(
 		`Total de espacios disponibles para ${targetDay}: ${totalAvailableSlots}`
 	);
-
+	console.log(schedules, 'state old');
 	return (
 		<>
 			<div className="flex justify-center mt-5">

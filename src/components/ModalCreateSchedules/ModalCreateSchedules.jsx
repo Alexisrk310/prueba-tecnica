@@ -3,22 +3,19 @@ import { useForm, Controller } from 'react-hook-form';
 import './ModalCreateSchedules.css';
 import { Button, Label, Modal, TextInput } from 'flowbite-react';
 import Select from 'react-select';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { newSchedules } from '../../features/schedules/schedulesSlice';
-import {
-	addSchedulesToday,
-	newSchedulesToday,
-} from '../../features/schedules/schedulesTodaySlice';
 
 const options = [
-	{ value: 'Lunes', label: 'Lunes' },
-	{ value: 'Martes', label: 'Martes' },
-	{ value: 'Miercoles', label: 'Miércoles' },
-	{ value: 'Jueves', label: 'Jueves' },
-	{ value: 'Viernes', label: 'Viernes' },
+	{ value: 'lunes', label: 'lunes' },
+	{ value: 'martes', label: 'martes' },
+	{ value: 'miércoles', label: 'miércoles' },
+	{ value: 'jueves', label: 'jueves' },
+	{ value: 'viernes', label: 'viernes' },
 ];
 
 const ModalCreateSchedules = ({ openModal, setOpenModal }) => {
+	const schedules = useSelector((state) => state.schedules);
 	const dispatch = useDispatch();
 	const {
 		handleSubmit,
@@ -40,9 +37,17 @@ const ModalCreateSchedules = ({ openModal, setOpenModal }) => {
 			Duration: data.Duration,
 			Hour: data.Hour,
 		};
-		dispatch(newSchedules(daySchedule));
-		console.log(daySchedule);
-		setOpenModal(false);
+		const validationRepeatschedules = schedules.find(
+			(schedule) => schedule.Hour === daySchedule.Hour
+		);
+		if (!validationRepeatschedules) {
+			console.log(validationRepeatschedules);
+			dispatch(newSchedules(daySchedule));
+			console.log(daySchedule);
+			setOpenModal(false);
+			return;
+		}
+		alert('Fecha no disponible - elegida ya');
 	};
 
 	const onCloseModal = () => {
