@@ -22,15 +22,7 @@ const HomePage = () => {
 		},
 	});
 
-	const weekdays = [
-		'domingo',
-		'lunes',
-		'martes',
-		'miércoles',
-		'jueves',
-		'viernes',
-		'sábado',
-	];
+	const weekdays = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes'];
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -70,10 +62,14 @@ const HomePage = () => {
 	// const remainingTime = 230 - totalOccupiedTime; // 230 minutos = 3:50 hm
 
 	const calculateAvailabilityMessage = () => {
-		if (remainingTime >= 0) {
-			return `Citas disponibles para el ${weekdays[selectedDay]}`;
+		const horasDisponibles = Math.floor(remainingTime / 60);
+		const minutosRestantes = remainingTime % 60;
+
+		if (remainingTime >= 30) {
+			return `Citas disponibles para el ${weekdays[selectedDay]}, hay ${horasDisponibles} horas y ${minutosRestantes} minutos disponibles`;
 		} else {
-			return `No hay citas disponibles para el ${weekdays[selectedDay]}`;
+			return `No hay citas disponibles`;
+			// para el ${weekdays[selectedDay]} y no hay ${horasDisponibles} horas y ${minutosRestantes} minutos disponibles
 		}
 	};
 
@@ -117,7 +113,7 @@ const HomePage = () => {
 				))}
 				<div>
 					{/* Disponibles para el {weekdays[selectedDay]}:{' '} */}
-					{calculateAvailabilityMessage()}
+					<p>{calculateAvailabilityMessage()}</p>
 				</div>
 			</div>
 			<div className="flex justify-center mt-5">
